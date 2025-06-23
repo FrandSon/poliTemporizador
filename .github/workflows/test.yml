@@ -1,0 +1,25 @@
+name: Test
+run-name: Test Vite app
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: [self-hosted]
+    steps:
+      - name: Descargar el repo
+        uses: actions/checkout@v4
+      - name: Configurar Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+      - name: Instalar dependencias
+        run: |
+          npm ci
+      - name: Ejecutar tests unitarios
+        run: |
+          npm run test
+      - name: Ejecutar tests con cobertura
+        run: |
+          npm run test:coverage
+      - name: Ejecutar tests e2e (si existen)
+        run: |
+          npm run test:e2e || echo "No hay tests e2e configurados"

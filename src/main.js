@@ -88,3 +88,23 @@ document.addEventListener('keydown', function(event) {
             break;
     }
 });
+
+// Exporta para pruebas
+export {
+  seconds,
+  tens,
+  interval,
+  formatTime,
+  startTimer,
+  resetTimerState
+};
+
+function resetTimerState() {
+  seconds = 0;
+  tens = 0;
+  clearInterval(interval);
+  interval = null;
+  appendTens.textContent = '00';
+  appendSeconds.textContent = '00';
+}
+
