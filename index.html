@@ -1,39 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PoliTemporizador</title>
-    
+
     <!-- Fuente de Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap" rel="stylesheet">
-    
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- Conexión al archivo CSS -->
-    <link rel="stylesheet" href="src/style.css">
-</head>
-<body>
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+  <body>
     <div class="wrapper">
-        <h1>PoliTemporizador</h1>
-        <h2>Cronómetro Digital Avanzado</h2>
-        
-        <div class="timer-display">
-            <span id="seconds">00</span><span class="colon">:</span><span id="tens">00</span>
-        </div>
-        
-        <div class="button-container">
-            <button id="button-start">
-                <span>Iniciar</span>
-            </button>
-            <button id="button-stop">
-                <span>Parar</span>
-            </button>
-            <button id="button-reset">
-                <span>Reiniciar</span>
-            </button>
-        </div>
+      <h1>PoliTemporizador</h1>
+      <h2>Cronómetro Digital Avanzado</h2>
+
+      <div class="timer-display">
+        <span id="seconds">00</span><span class="colon">:</span
+        ><span id="tens">00</span>
+      </div>
+
+      <div class="button-container">
+        <button id="button-start">
+          <span>Iniciar</span>
+        </button>
+        <button id="button-stop">
+          <span>Parar</span>
+        </button>
+        <button id="button-reset">
+          <span>Reiniciar</span>
+        </button>
+      </div>
     </div>
 
     <!-- Conexión al archivo JavaScript -->
     <script src="src/main.js"></script>
-</body>
+  </body>
 </html>

@@ -1,4 +1,12 @@
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import {
+  describe,
+  test,
+  expect,
+  beforeEach,
+  afterEach,
+  vi,
+  beforeAll,
+} from 'vitest';
 import { JSDOM } from 'jsdom';
 
 // Configuración DOM
@@ -19,8 +27,12 @@ const dom = new JSDOM(`
 global.document = dom.window.document;
 global.window = dom.window;
 
-// Importa el módulo
-const timerModule = await import('../src/main.js');
+let timerModule;
+
+// Cargamos el módulo de forma asíncrona antes de todas las pruebas
+beforeAll(async () => {
+  timerModule = await import('../src/main.js');
+});
 
 describe('PoliTemporizador', () => {
   let appendTens, appendSeconds, buttonStart, buttonStop, buttonReset;
@@ -31,8 +43,8 @@ describe('PoliTemporizador', () => {
     buttonStart = document.getElementById('button-start');
     buttonStop = document.getElementById('button-stop');
     buttonReset = document.getElementById('button-reset');
-    
-    // Usa la nueva función para reiniciar
+
+    // Usa la función para reiniciar
     timerModule.resetTimerState();
     vi.useFakeTimers();
   });
@@ -77,16 +89,16 @@ describe('PoliTemporizador', () => {
     const spaceEvent = new KeyboardEvent('keydown', { code: 'Space' });
     document.dispatchEvent(spaceEvent);
     vi.advanceTimersByTime(75);
-    
+
     // Verifica que inició
     expect(appendTens.textContent).not.toBe('00');
     const currentValue = appendTens.textContent;
-    
+
     // Simula espacio (detener)
     document.dispatchEvent(spaceEvent);
     vi.advanceTimersByTime(50);
     expect(appendTens.textContent).toBe(currentValue);
-    
+
     // Simula R (reset)
     const rEvent = new KeyboardEvent('keydown', { code: 'KeyR' });
     document.dispatchEvent(rEvent);

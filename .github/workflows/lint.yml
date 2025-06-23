@@ -1,0 +1,28 @@
+name: Lint
+run-name: Lint and format Vite app
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: [self-hosted]
+    steps:
+      - name: Descargar el repo
+        uses: actions/checkout@v4
+      - name: Configurar Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+      - name: Instalar dependencias
+        run: |
+          npm ci
+      - name: Verificar formato con Prettier
+        run: |
+          npm run format:check
+      - name: Ejecutar ESLint
+        run: |
+          npm run lint
+      - name: Aplicar formato automático
+        run: |
+          npm run format
+      - name: Verificar cambios en el formato
+        run: |
+          git diff --exit-code || (echo "❌ Hay cambios de formato pendientes. Ejecuta 'npm run format' localmente." && exit 1)
