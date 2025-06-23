@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
-    "docker:build": "docker build -t mi-proyecto .",
-    "docker:run": "docker run -p 3000:80 mi-proyecto"
+    "preview": "vite preview",
+    "docker:build": "docker build -t frands0n/politemporizador .",
+    "docker:run": "docker run -p 3000:80 frands0n/politemporizador"
   },
   "devDependencies": {
     "vite": "^6.3.5"

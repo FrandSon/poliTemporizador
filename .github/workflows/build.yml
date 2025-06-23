@@ -1,0 +1,28 @@
+name: Build
+run-name: Build Vite app
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: [self-hosted]
+    steps:
+      - name: Descargar el repo
+        uses: actions/checkout@v4
+      - name: Configurar Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+      - name: Instalar dependencias
+        run: |
+          npm ci
+      - name: Compilar la aplicación
+        run: |
+          npm run build
+      - name: Verificar archivos generados
+        run: |
+          ls -la dist/
+      - name: Previsualizar build localmente (opcional)
+        run: |
+          npm run preview &
+          sleep 5
+          curl -I http://localhost:4173 || echo "Preview server iniciado"
+          pkill -f "vite preview"
