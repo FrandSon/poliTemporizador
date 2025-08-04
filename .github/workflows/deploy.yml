@@ -2,43 +2,53 @@ name: Deploy
 run-name: Deploy PoliTemporizador to GitHub Pages
 on:
   push:
-    branches: [main]  # Solo se activa en push a main
+    branches: [main]
 
 jobs:
-  deploy:
-    runs-on: [self-hosted]  # Mismo runner que los otros workflows
-    needs: build  # Requiere que el job de build haya completado exitosamente
+  prepare-deploy:
+    runs-on: [self-hosted]
+    outputs:
+      build-artifact: ${{ steps.get-artifact.outputs.download-path }}
     steps:
-      - name: Descargar el repo
+      - name: Descargar repo
         uses: actions/checkout@v4
 
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
-          cache: 'npm'  # Cache para instalación más rápida
+          cache: 'npm'
 
       - name: Instalar dependencias
         run: npm ci
 
       - name: Descargar artefacto de compilación
+        id: get-artifact
         uses: actions/download-artifact@v4
         with:
-          name: dist  # Nombre del artefacto subido en build.yml
+          name: dist
           path: dist/
 
-      - name: Verificar archivos de despliegue
+      - name: Establecer ruta del artefacto
+        id: set-artifact-path
+        run: echo "download-path=$(realpath dist)" >> $GITHUB_OUTPUT
+
+  deploy-production:
+    runs-on: [self-hosted]
+    needs: prepare-deploy
+    steps:
+      - name: Usar artefacto descargado
         run: |
-          echo "📂 Contenido del directorio dist:"
-          ls -la dist/
+          echo "📂 Usando artefacto en: ${{ needs.prepare-deploy.outputs.build-artifact }}"
+          ls -la ${{ needs.prepare-deploy.outputs.build-artifact }}
 
       - name: Desplegar en GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          force_orphan: true  # Mantiene solo la última versión
-          keep_files: false   # Elimina archivos previos
+          publish_dir: ${{ needs.prepare-deploy.outputs.build-artifact }}
+          force_orphan: true
+          keep_files: false
 
       - name: Verificar despliegue
         run: |
