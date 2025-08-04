@@ -6,9 +6,10 @@ on:
 
 jobs:
   prepare-deploy:
-    runs-on: [self-hosted]
+    runs-on: ubuntu-latest  # Changed to GitHub-hosted runner
+    timeout-minutes: 5  # Add timeout to prevent hanging
     outputs:
-      build-artifact: ${{ steps.get-artifact.outputs.download-path }}
+      build-artifact: ${{ steps.set-artifact-path.outputs.download-path }}
     steps:
       - name: Descargar repo
         uses: actions/checkout@v4
@@ -29,14 +30,23 @@ jobs:
           name: dist
           path: dist/
 
+      - name: Verificar descarga
+        run: ls -la dist/  # Add verification step
+
       - name: Establecer ruta del artefacto
         id: set-artifact-path
-        run: echo "download-path=$(realpath dist)" >> $GITHUB_OUTPUT
+        run: |
+          echo "download-path=$(pwd)/dist" >> $GITHUB_OUTPUT
+          echo "Artifact path: $(pwd)/dist"  # Debug output
 
   deploy-production:
-    runs-on: [self-hosted]
+    runs-on: ubuntu-latest  # Changed to GitHub-hosted runner
     needs: prepare-deploy
+    timeout-minutes: 10  # Add timeout to prevent hanging
     steps:
+      - name: Configurar entorno
+        run: echo "Starting deployment..."
+
       - name: Usar artefacto descargado
         run: |
           echo "📂 Usando artefacto en: ${{ needs.prepare-deploy.outputs.build-artifact }}"
@@ -53,4 +63,4 @@ jobs:
       - name: Verificar despliegue
         run: |
           echo "✅ Aplicación desplegada en:"
-          echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "https://${{ github.repository_owner }}.github.io/${{ github.repository }}"
