@@ -22,11 +22,10 @@ jobs:
           node-version: "22.x"
           cache: 'npm'
 
+      # FIXED AUTHENTICATION STEP
       - name: Autenticar GitHub CLI
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          echo "$GH_TOKEN" | gh auth login --with-token
+          echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
           gh auth status
 
       - name: Encontrar el último workflow exitoso
