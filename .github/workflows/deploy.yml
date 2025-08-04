@@ -1,0 +1,46 @@
+name: Deploy
+run-name: Deploy PoliTemporizador to GitHub Pages
+on:
+  push:
+    branches: [main]  # Solo se activa en push a main
+
+jobs:
+  deploy:
+    runs-on: [self-hosted]  # Mismo runner que los otros workflows
+    needs: build  # Requiere que el job de build haya completado exitosamente
+    steps:
+      - name: Descargar el repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: 'npm'  # Cache para instalación más rápida
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Descargar artefacto de compilación
+        uses: actions/download-artifact@v4
+        with:
+          name: dist  # Nombre del artefacto subido en build.yml
+          path: dist/
+
+      - name: Verificar archivos de despliegue
+        run: |
+          echo "📂 Contenido del directorio dist:"
+          ls -la dist/
+
+      - name: Desplegar en GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true  # Mantiene solo la última versión
+          keep_files: false   # Elimina archivos previos
+
+      - name: Verificar despliegue
+        run: |
+          echo "✅ Aplicación desplegada en:"
+          echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
