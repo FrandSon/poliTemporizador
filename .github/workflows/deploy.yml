@@ -6,45 +6,53 @@ on:
 
 jobs:
   prepare-deploy:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      build-artifact: ${{ steps.set-artifact-path.outputs.download-path }}
-    steps:
-      - name: Descargar repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Get full commit history
+  runs-on: ubuntu-latest
+  timeout-minutes: 5
+  outputs:
+    build-artifact: ${{ steps.set-artifact-path.outputs.download-path }}
+  steps:
+    - name: Descargar repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Get full commit history
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22.x"
-          cache: 'npm'
+    - name: Configurar Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "22.x"
+        cache: 'npm'
 
-      - name: Encontrar el último workflow exitoso
-        id: find-workflow
-        run: |
-          # Get the most recent successful build workflow run
-          RUN_ID=$(gh run list --workflow=build.yml --branch=main --status=success --json databaseId -q ".[0].databaseId" --limit 1)
-          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
-          echo "Found successful build run: $RUN_ID"
+    # NEW: GH CLI AUTHENTICATION
+    - name: Autenticar GitHub CLI
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: |
+        echo "$GH_TOKEN" | gh auth login --with-token
+        gh auth status
 
-      - name: Descargar artefacto de compilación
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
-          run_id: ${{ steps.find-workflow.outputs.run_id }}
+    - name: Encontrar el último workflow exitoso
+      id: find-workflow
+      run: |
+        # Get the most recent successful build workflow run
+        RUN_ID=$(gh run list --workflow=build.yml --branch=main --status=success --json databaseId -q ".[0].databaseId" --limit 1)
+        echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+        echo "Found successful build run: $RUN_ID"
 
-      - name: Verificar descarga
-        run: ls -la dist/
+    - name: Descargar artefacto de compilación
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+        run_id: ${{ steps.find-workflow.outputs.run_id }}
 
-      - name: Establecer ruta del artefacto
-        id: set-artifact-path
-        run: |
-          echo "download-path=$(pwd)/dist" >> $GITHUB_OUTPUT
-          echo "Artifact path set to: $(pwd)/dist"
+    - name: Verificar descarga
+      run: ls -la dist/
+
+    - name: Establecer ruta del artefacto
+      id: set-artifact-path
+      run: |
+        echo "download-path=$(pwd)/dist" >> $GITHUB_OUTPUT
+        echo "Artifact path set to: $(pwd)/dist"
 
   deploy-production:
     runs-on: ubuntu-latest
