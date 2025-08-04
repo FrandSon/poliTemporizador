@@ -22,15 +22,7 @@ jobs:
           node-version: "22.x"
           cache: 'npm'
 
-      - name: Instalar GitHub CLI
-        run: |
-          type -p curl >/dev/null || sudo apt install curl -y
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-          && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null \
-          && sudo apt update \
-          && sudo apt install gh -y
-
+      # FIXED AUTHENTICATION STEP
       - name: Autenticar GitHub CLI
         run: |
           echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
@@ -43,17 +35,17 @@ jobs:
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
           echo "Found successful build run: $RUN_ID"
 
+      # FIXED DOWNLOAD STEP
       - name: Descargar artefacto de compilación
         uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
-          run-id: ${{ steps.find-workflow.outputs.run_id }}  # Fixed input name (run-id not run_id)
+          run-id: ${{ steps.find-workflow.outputs.run_id }}  # FIXED: run-id instead of run_id
+          github-token: ${{ secrets.GH_TOKEN }}  # ADDED: Required authentication
 
       - name: Verificar descarga
-        run: |
-          echo "📦 Contenido descargado:"
-          ls -la dist/
+        run: ls -la dist/
 
       - name: Establecer ruta del artefacto
         id: set-artifact-path
